@@ -122,7 +122,7 @@ The same in one call, with an optional check before anything is charged:
 
 ```python
 result = client.domains.register_with_quote(
-    body,                                    # the register() body without expectedPrice
+    body,  # the register() body without expectedPrice
     lambda quote: quote["total"] <= max_price,
 )
 ```
@@ -226,10 +226,10 @@ create the key yourself and store it with your order before calling:
 ```python
 from leto_domain_api import RequestOptions, generate_idempotency_key
 
-order.idempotency_key = order.idempotency_key or generate_idempotency_key()   # save the order here
+order.idempotency_key = order.idempotency_key or generate_idempotency_key()  # save the order here
 client.domains.renew("example.com", {"period": 1}, options=RequestOptions(idempotency_key=order.idempotency_key))
 
-client.last_response.replayed   # True when the API returned the stored first result
+client.last_response.replayed  # True when the API returned the stored first result
 ```
 
 Other endpoints do not accept a key; passing one raises `InvalidArgumentError`.
@@ -249,9 +249,9 @@ seconds) or backs off exponentially (about 0.5 s, 1 s, 2 s).
 ```python
 client = LetoClient(
     api_key,
-    timeout=30,              # seconds per network operation, default 60 (connect at most 10)
-    max_retries=3,           # default 2, 0 turns retries off
-    max_retry_after=30,      # longest Retry-After to wait for, default 60
+    timeout=30,  # seconds per network operation, default 60 (connect at most 10)
+    max_retries=3,  # default 2, 0 turns retries off
+    max_retry_after=30,  # longest Retry-After to wait for, default 60
     user_agent_suffix="my-panel/2.1",
 )
 
@@ -281,7 +281,7 @@ and returns (in `leto_domain_api.types`), so mypy, pyright and your editor know 
 
 ```python
 status = client.account.get_status()
-status["balance"]["amout"]   # mypy: TypedDict "AccountBalanceDto" has no key "amout"
+status["balance"]["amout"]  # mypy: TypedDict "AccountBalanceDto" has no key "amout"
 ```
 
 ```python
@@ -297,10 +297,10 @@ add values. At runtime the values are ordinary dicts; fields the API adds later 
 
 ```python
 info = client.last_response
-info.status_code       # 200
-info.request_id        # X-Request-Id
-info.idempotency_key   # key sent with the last request, if any
-info.attempts          # 1, or more after retries
+info.status_code  # 200
+info.request_id  # X-Request-Id
+info.idempotency_key  # key sent with the last request, if any
+info.attempts  # 1, or more after retries
 ```
 
 With concurrent calls on one `AsyncLetoClient`, `last_response` is whichever response arrived
@@ -333,8 +333,8 @@ pip install leto-domain-api
 from leto_domain_api import LetoClient
 
 client = LetoClient(os.environ["LETO_API_KEY"])
-status = client.account.get_status()               # 잔액·통화
-page = client.domains.list(query={"size": 100})    # 목록은 Page, auto_paginate() 로 전체 순회
+status = client.account.get_status()  # 잔액·통화
+page = client.domains.list(query={"size": 100})  # 목록은 Page, auto_paginate() 로 전체 순회
 ```
 
 - API 키는 파트너 콘솔에서 발급하며 `Authorization: Bearer` 로 보냅니다. 서버에만 두세요.
