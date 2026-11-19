@@ -1,0 +1,5 @@
+# Development tools, installed by `make python-install` (scripts/python.sh --install).
+# The package itself is installed in editable mode next to them.
+pytest==9.2.0
+mypy==2.4.1
+ruff==0.17.5
