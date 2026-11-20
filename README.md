@@ -171,9 +171,17 @@ except ApiConnectionError as e:
 A charging request (registration, renewal, restore, transfer) can fail with a `ServerError`
 whose `error_code` is `API_TIMEOUT` (504), `NETWORK_ERROR` or `REGISTRY_CONNECTION_FAILED` (502).
 Your balance was not charged, but the registry may still have carried out the request. The SDK
-does not resend these requests by itself, because sending a renewal again could renew the
-domain twice. Check the domain first, for example `client.domains.get("example.com")` and its
-expiry date after a renewal, then decide whether to send it again.
+does not resend these requests by itself; sending one again is your call, and it is safe:
+
+- Registration, restore and transfer: the registry refuses a second request for the same domain,
+  so a request that already went through fails instead of being applied twice.
+- Renewal: the next renewal of the same domain (within 7 days) first reads the registry expiry
+  date. If the earlier renewal was applied, the API does not renew again; it records the earlier
+  renewal, charges it once and returns the registry expiry date. Send the same `period`, otherwise
+  the API answers 409 `OPERATION_NOT_ALLOWED`. If the registry cannot be read, you get 502 and
+  nothing is charged; try again later.
+
+Use the same Idempotency-Key when you send it again.
 
 | Exception | When |
 |---|---|
@@ -344,8 +352,10 @@ page = client.domains.list(query={"size": 100})  # 목록은 Page, auto_paginate
   같은 키로 다시 보냅니다. 다른 프로세스에서 다시 시도할 수 있다면 키를 직접 만들어 주문과 함께
   저장해 두세요(`generate_idempotency_key()`).
 - 이 요청이 `API_TIMEOUT`(504)이나 `NETWORK_ERROR`·`REGISTRY_CONNECTION_FAILED`(502)로 실패하면
-  잔액은 차감되지 않았지만 레지스트리에서는 처리됐을 수 있습니다. SDK 는 다시 보내지 않습니다
-  (갱신이 두 번 될 수 있음). 도메인을 조회해(갱신이면 만료일) 확인한 뒤 다시 보낼지 정하세요.
+  잔액은 차감되지 않았지만 레지스트리에서는 처리됐을 수 있습니다. SDK 는 저절로 다시 보내지 않지만,
+  같은 키로 다시 보내도 안전합니다. 등록·복원·이전은 레지스트리가 두 번째 요청을 거절하고, 갱신은
+  API 가 레지스트리 만료일을 먼저 확인해 이미 갱신됐으면 다시 갱신하지 않고 한 번만 기록·과금합니다
+  (같은 `period` 로 보내야 하며, 다르면 409).
 - 가격이 바뀌는 사이에 결제되지 않게 하려면 견적의 `total` 을 `expectedPrice` 로 보내거나
   `register_with_quote()` 를 쓰세요. 가격이 달라졌으면 `PriceChangedError` 가 나고 차감되지
   않습니다.

@@ -68,7 +68,7 @@ def main() -> None:
                 print("Top up the balance first")
             except ServerError as e:
                 # API_TIMEOUT, NETWORK_ERROR, REGISTRY_CONNECTION_FAILED: not charged, registry outcome unknown.
-                print(f"{e.error_code}: check the domain before sending it again (request {e.request_id})")
+                print(f"{e.error_code}: not charged; resending with the same key is safe")
             except LetoApiError as e:
                 print(f"{e.error_code}: {e.message} (request {e.request_id or '-'})")
             except ApiConnectionError as e:

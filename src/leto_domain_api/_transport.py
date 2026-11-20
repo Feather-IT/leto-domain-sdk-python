@@ -9,8 +9,8 @@ Retry-After says or with exponential backoff.
   answered, so the API may still be running the first request and will answer the retry with
   409 or the stored result). A 502/504 error body from the API itself (for example API_TIMEOUT)
   means the registry call failed or timed out: the API has released the charge and forgotten the
-  key, and the registry may still have applied the first request (a renewal could be applied
-  twice). That outcome is left to the caller.
+  key, and the registry may still have applied the first request.
+  Whether to send it again is left to the caller (the API makes it safe, see the README).
 - A 409 IDEMPOTENCY_REQUEST_IN_PROGRESS (the first request with the same key is still running).
 
 Other requests and other statuses (500, other 4xx) are not retried.
