@@ -6,6 +6,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-20
+
 ### Added
 
 - First version of the Python SDK, generated from the LETO Domain API OpenAPI document 1.1.0:
